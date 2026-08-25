@@ -2,16 +2,22 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { decrementItemQuantity, addItem, removeItem, clearCart } from '../features/cart/CartSlice';
+import { useState } from "react";
 
 export default function Cart() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+const handleCheckout = () => {
+    dispatch(clearCart());
+    setIsSuccessModalOpen(true);
+}
 const {cartItems, totalPrice, totalQuantity} = useSelector((state) => 
     state.cart
 );
 
-if(cartItems.length === 0) {
+if(cartItems.length === 0 && !isSuccessModalOpen) {
     return(
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
             <h2 className="text-2xl font-bold">Корзина пуста</h2>
@@ -24,6 +30,7 @@ if(cartItems.length === 0) {
         </div>
     )
 }
+
 return(
         <div className="container mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 flex flex-col gap-4">
@@ -70,7 +77,9 @@ return(
                 <p className="text-xl font-bold mb-2">Итого: ${totalPrice}</p>
                 <p className="text-gray-600 mb-6">Товаров в заказе: {totalQuantity} шт.</p>
                 
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 text-sm mb-3">
+                <button 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 text-sm mb-3"
+                onClick={handleCheckout}>
                     Оформить заказ
                 </button>
                 
@@ -81,6 +90,27 @@ return(
                     Очистить корзину
                 </button>
             </div>
+      {isSuccessModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 text-green-600 mb-6">
+              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800 mb-2">Заказ оформлен!</h3>
+            <p className="text-slate-500 text-sm mb-6">
+              Спасибо за покупку. Наш менеджер уже собирает вашу посылку! 📦
+            </p>
+            <button
+              onClick={() => setIsSuccessModalOpen(false)}
+              className="w-full py-3 px-4 bg-gradient-to-r cursor-pointer from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium rounded-xl shadow-lg"
+            >
+              Отлично
+            </button>
+          </div>
         </div>
+      )}
+    </div>
     );
 }

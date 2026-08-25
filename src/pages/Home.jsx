@@ -11,13 +11,12 @@ export default function Home() {
   const sort = useSelector((state) => state.products.sort);
   const { items, isLoading, error } = useSelector((state) => state.products);
 
-  // ЛОГИКА ВОДОПАДА (Исправленная)
   const fItems = useMemo(() => {let fItems = items.filter(product => 
     product.title.toLowerCase().includes(search.toLowerCase())
   );
 
   if (category !== 'All') {
-    fItems = fItems.filter(product => product.category === category);
+    fItems = fItems.filter(product => product.category.toLowerCase() === category.toLowerCase());
   }
 
   if (sort === 'low-to-high') {
@@ -25,6 +24,8 @@ export default function Home() {
   } else if (sort === 'high-to-low') {
     fItems = [...fItems].sort((a, b) => b.price - a.price);
   }
+  console.log("У товаров в базе вот такие категории:", [...new Set(items.map(p => p.category))]);
+
   return fItems;
 }, [items, search, category, sort]);
 
@@ -85,7 +86,7 @@ const totalPages = Math.ceil(fItems.length / itemsPerPage);
           </select>
         </div>
         <div className='flex flex-wrap gap-2'>
-          {['All', 'smartphones', 'laptops', 'fragrances'].map((i) => (
+            {['All', 'beauty', 'fragrances', 'furniture', 'groceries'].map((i) => (
             <button 
               key={i}
               onClick={() => dispatch(setCategory(i))}
